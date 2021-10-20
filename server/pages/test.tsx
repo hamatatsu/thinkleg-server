@@ -1,39 +1,44 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import RealtimeChart from '../components/realtimechart';
+import MQTT from 'mqtt';
 
+interface Data { x: number, y: number }
 
 const Test: NextPage = () => {
-  const nameList = ["a"];
-  const defaultDataList = nameList.map(name => ({
-    name: name,
-    data: []
-  } as { name: string, data: Array<{ x: number, y: number }> }));
-  const [dataList, setDataList] = useState(defaultDataList)
+  const mqtt_url = "mqtt://host.docker.internal:9001"
+  const mqtt_options = { username: "ham", password: "thinkleg" } as MQTT.IClientOptions;
+  const [series, setSeries] = useState([{ name: "test", data: [] }] as Array<{ name: string, data: Array<Data> }>)
+  let dataList = [] as Array<Data>
+  // const [dataList, setDataList] = useState([] as Array<Data>)
+  // const dataList = [] as Array<Data>
+
+  const clientRef = useRef<MQTT.MqttClient | null>(null)
 
   useEffect(() => {
-    const addDataRandomly = (data: Array<{ x: number, y: number }>) => {
-      return [
-        ...data,
-        {
-          x: Date.now(),
-          y: 500 * Math.random() // データの量に応じて最大値が増えるランダムな数
-        }
-      ];
+    if (clientRef.current) return
+    clientRef.current = MQTT.connect(mqtt_url, mqtt_options);
+    const client = clientRef.current;
+    client.subscribe('test');
+    client.on('message', (topic, message) => {
+      const date = Date.now();
+      const value = parseInt(message.toString());
+      const data = { x: date, y: value } as Data
+      dataList = [...dataList, data]
+      setSeries([{ name: "test", data: dataList }])
+    });
+    client.on('connect', () => {
+      console.log("ok")
+    })
+
+    return () => {
+      // if (clientRef.current) {
+      //   clientRef.current.unsubscribe('test');
+      //   clientRef.current.end();
+      // }
     };
-    const interval = setInterval(() => {
-      setDataList(
-        dataList.map(val => { // ラベルごとにデータを更新する
-          return {
-            name: val.name,
-            data: addDataRandomly(val.data)
-          };
-        })
-      );
-    }, 20);
-    return () => clearInterval(interval);
-  }, [dataList])
+  });
 
   return (
     <>
@@ -45,9 +50,7 @@ const Test: NextPage = () => {
       <div className="app">
         <div className="row">
           <div className="mixed-chart">
-            <RealtimeChart
-              dataList={dataList}
-            />
+            <RealtimeChart series={series} />
           </div>
         </div>
       </div>

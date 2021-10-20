@@ -44,12 +44,17 @@ const options = {
   }
 } as ApexChart.ApexOptions
 
-interface Props { dataList: Array<{ name: string, data: Array<{ x: number, y: number }> }> }
+interface Props { series: Array<{ name: string, data: Array<{ x: number, y: number }> }> }
 
-const RealtimeChart: NextPage<Props> = (props) => (<Chart
-  options={options}
-  series={props.dataList}
-  type="line"
-  width={1000} />)
+const RealtimeChart: NextPage<Props> = (props) => {
+  return (
+    <Chart
+      options={options}
+      series={props.series}
+      type="line"
+      width={1000} />
+  )
+}
+
 
 export default RealtimeChart
