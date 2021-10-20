@@ -16,4 +16,9 @@ services:
       - ./broker:/mosquitto
     ports:
       - 1883:1883
+      - 9001:9001
     tty: true
+
+networks:
+  thinkleg-network:
+    external: true
