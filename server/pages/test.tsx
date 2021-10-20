@@ -26,6 +26,9 @@ const Test: NextPage = () => {
       const value = parseInt(message.toString());
       const data = { x: date, y: value } as Data
       dataList = [...dataList, data]
+      if (dataList.length > 600) {
+        dataList = dataList.slice(300)
+      }
       setSeries([{ name: "test", data: dataList }])
     });
     client.on('connect', () => {
