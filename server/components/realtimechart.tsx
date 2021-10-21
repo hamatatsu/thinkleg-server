@@ -40,6 +40,8 @@ const options = {
     labels: {
       formatter: val => val.toFixed(0)
     },
+    min: 0,
+    max: 500,
     title: { text: "Value" },
   }
 } as ApexChart.ApexOptions
