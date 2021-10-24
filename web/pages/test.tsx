@@ -1,47 +1,29 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
+import { io } from "socket.io-client";
 import RealtimeChart from '../components/realtimechart';
-import MQTT from 'mqtt';
 
-interface Data { x: number, y: number }
+interface Data { x: number, y: number; }
 
 const Test: NextPage = () => {
-  const mqtt_url = "mqtt://host.docker.internal:9001"
-  const mqtt_options = { username: "ham", password: "thinkleg" } as MQTT.IClientOptions;
-  const [series, setSeries] = useState([{ name: "test", data: [] }] as Array<{ name: string, data: Array<Data> }>)
-  let dataList = [] as Array<Data>
-  // const [dataList, setDataList] = useState([] as Array<Data>)
-  // const dataList = [] as Array<Data>
-
-  const clientRef = useRef<MQTT.MqttClient | null>(null)
+  const [data, setData] = useState({} as Data);
 
   useEffect(() => {
-    if (clientRef.current) return
-    clientRef.current = MQTT.connect(mqtt_url, mqtt_options);
-    const client = clientRef.current;
-    client.subscribe('test');
-    client.on('message', (topic, message) => {
-      const date = Date.now();
-      const value = parseInt(message.toString());
-      const data = { x: date, y: value } as Data
-      dataList = [...dataList, data]
-      if (dataList.length > 600) {
-        dataList = dataList.slice(300)
-      }
-      setSeries([{ name: "test", data: dataList }])
+    const socket = io("http://localhost:3001");
+    socket.on('message', (msg) => {
+      setData(msg);
+      console.log(msg);
     });
-    client.on('connect', () => {
-      console.log("ok")
-    })
+    socket.on('connect', () => {
+      console.log(socket.id);
+      socket.emit("getData", '')
+    });
 
     return () => {
-      // if (clientRef.current) {
-      //   clientRef.current.unsubscribe('test');
-      //   clientRef.current.end();
-      // }
+      socket.close();
     };
-  });
+  }, []);
 
   return (
     <>
@@ -53,12 +35,12 @@ const Test: NextPage = () => {
       <div className="app">
         <div className="row">
           <div className="mixed-chart">
-            <RealtimeChart series={series} />
+            <RealtimeChart series={[{ name: "test", data: [] }]} />
           </div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Test
+export default Test;
