@@ -1,0 +1,4 @@
+{
+  "javascript.suggestionActions.enabled": false,
+  "javascript.format.semicolons": "insert"
+}
