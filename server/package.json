@@ -1,0 +1,13 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mqtt": "^4.2.8",
+    "socket.io": "^4.3.1"
+  }
+}
