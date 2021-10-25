@@ -7,17 +7,18 @@ import RealtimeChart from '../components/realtimechart';
 interface Data { x: number, y: number; }
 
 const Test: NextPage = () => {
+  const [msg, setMsg] = useState('')
   const [data, setData] = useState({} as Data);
 
   useEffect(() => {
-    const socket = io("http://localhost:3001");
+    const socket = io();
     socket.on('message', (msg) => {
-      setData(msg);
+      setMsg(msg);
       console.log(msg);
     });
     socket.on('connect', () => {
       console.log(socket.id);
-      socket.emit("getData", '')
+      socket.emit("getData", '');
     });
 
     return () => {
@@ -35,6 +36,7 @@ const Test: NextPage = () => {
       <div className="app">
         <div className="row">
           <div className="mixed-chart">
+            <p>{msg}</p>
             <RealtimeChart series={[{ name: "test", data: [] }]} />
           </div>
         </div>
