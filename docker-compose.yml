@@ -27,9 +27,12 @@ services:
       - 9001:9001
   db:
     image: postgres:alpine
-    container_name : db
+    container_name: db
     environment:
-      POSTGRES_PASSWORD: thinkleg
+      POSTGRES_PASSWORD:
+      POSTGRES_USER:
+    ports:
+      - 5432:5432
 
 networks:
   thinkleg-network:
