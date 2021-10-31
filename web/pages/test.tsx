@@ -3,14 +3,16 @@ import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import RealtimeChart from '../components/realtimechart';
 
-interface Data { x: number, y: number; }
+interface Data {
+  x: number;
+  y: number;
+}
 
 const Test: NextPage = () => {
-  const [msg, setMsg] = useState('')
+  const [msg, setMsg] = useState('');
   const [data, setData] = useState({} as Data);
 
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>
@@ -23,7 +25,7 @@ const Test: NextPage = () => {
         <div className="row">
           <div className="mixed-chart">
             <p>{msg}</p>
-            <RealtimeChart series={[{ name: "test", data: [] }]} />
+            <RealtimeChart series={[{ name: 'test', data: [] }]} />
           </div>
         </div>
       </div>

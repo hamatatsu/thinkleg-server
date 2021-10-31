@@ -3,7 +3,7 @@
   "dockerComposeFile": ["../../docker-compose.yml"],
   "service": "web",
   "shutdownAction": "none",
-  "extensions": [],
+  "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
   // Open the sub-folder with the source code
   "workspaceFolder": "/workspace/web"
 }
