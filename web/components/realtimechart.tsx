@@ -30,7 +30,7 @@ const options = {
     },
   },
   xaxis: {
-    type: 'datetime',
+    type: 'numeric',
     range: 5000,
     labels: {
       formatter: labelFormatter,

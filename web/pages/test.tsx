@@ -1,7 +1,10 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 import RealtimeChart from '../components/realtimechart';
+
+const fetcher = (url) => fetch(url).then((r) => r.json());
 
 interface Data {
   x: number;
@@ -9,10 +12,16 @@ interface Data {
 }
 
 const Test: NextPage = () => {
-  const [msg, setMsg] = useState('');
-  const [data, setData] = useState({} as Data);
+  const [chartData, setchartData] = useState<Data>();
+  const { data, error } = useSWR('/api/legdata', fetcher, {
+    refreshInterval: 2000,
+  });
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (data) {
+      setchartData(data.map((d) => ({ x: d.date, y: d.leg })));
+    }
+  }, [data]);
 
   return (
     <>
@@ -24,8 +33,7 @@ const Test: NextPage = () => {
       <div className="app">
         <div className="row">
           <div className="mixed-chart">
-            <p>{msg}</p>
-            <RealtimeChart series={[{ name: 'test', data: [] }]} />
+            <RealtimeChart series={[{ name: 'test', data: chartData }]} />
           </div>
         </div>
       </div>
