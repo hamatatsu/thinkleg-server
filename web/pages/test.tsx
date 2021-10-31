@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
-import { io } from "socket.io-client";
 import RealtimeChart from '../components/realtimechart';
 
 interface Data { x: number, y: number; }
@@ -11,19 +10,6 @@ const Test: NextPage = () => {
   const [data, setData] = useState({} as Data);
 
   useEffect(() => {
-    const socket = io();
-    socket.on('message', (msg) => {
-      setMsg(msg);
-      console.log(msg);
-    });
-    socket.on('connect', () => {
-      console.log(socket.id);
-      socket.emit("getData", '');
-    });
-
-    return () => {
-      socket.close();
-    };
   }, []);
 
   return (
