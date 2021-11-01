@@ -20,24 +20,16 @@ const options = {
     animations: {
       enabled: false,
     },
-    // animations: {
-    //   easing: 'linear',
-    //   dynamicAnimation: {
-    //     speed: 500,
-    //   },
-    // },
   },
   stroke: {
     width: 1,
     curve: 'straight',
   },
   tooltip: {
-    x: {
-      formatter: tooltipFormatter,
-    },
+    enabled: false,
   },
   xaxis: {
-    type: 'numeric',
+    type: 'datetime',
     range: 5000,
     labels: {
       formatter: labelFormatter,
