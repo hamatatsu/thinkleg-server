@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import RealtimeChart from '../components/realtimechart';
 
 const fetcher = (url) => fetch(url).then((r) => r.json());
@@ -13,15 +13,21 @@ interface Data {
 
 const Test: NextPage = () => {
   const [chartData, setchartData] = useState<Data>();
-  const { data, error } = useSWR('/api/legdata', fetcher, {
-    refreshInterval: 2000,
-  });
+  const { mutate } = useSWRConfig();
+  const { data, error } = useSWR('/api/legdata', fetcher);
 
   useEffect(() => {
     if (data) {
       setchartData(data.map((d) => ({ x: d.date, y: d.leg })));
     }
   }, [data]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      mutate('/api/legdata');
+    }, 100);
+    return () => clearInterval(timer);
+  });
 
   return (
     <>

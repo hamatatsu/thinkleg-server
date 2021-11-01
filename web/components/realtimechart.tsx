@@ -18,11 +18,18 @@ const options = {
       enabled: false,
     },
     animations: {
-      easing: 'linear',
-      dynamicAnimation: {
-        speed: 500,
-      },
+      enabled: false,
     },
+    // animations: {
+    //   easing: 'linear',
+    //   dynamicAnimation: {
+    //     speed: 500,
+    //   },
+    // },
+  },
+  stroke: {
+    width: 1,
+    curve: 'straight',
   },
   tooltip: {
     x: {
