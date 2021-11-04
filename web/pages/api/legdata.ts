@@ -14,7 +14,7 @@ export default async function handler(
   const client = new Client();
   await client.connect();
   const result = await client.query(
-    'SELECT * from test ORDER BY id DESC LIMIT 300'
+    'SELECT * from test ORDER BY date DESC LIMIT 300'
   );
   res.status(200).json(result.rows.reverse());
   client.end();
