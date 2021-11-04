@@ -25,7 +25,7 @@ const Test: NextPage = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       mutate('/api/legdata');
-    }, 100);
+    }, 500);
     return () => clearInterval(timer);
   });
 
