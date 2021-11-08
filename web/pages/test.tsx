@@ -12,19 +12,22 @@ interface Data {
 }
 
 const Test: NextPage = () => {
-  const [chartData, setchartData] = useState<Data>();
+  const [chartData, setchartData] = useState<Number[][2]>();
   const { mutate } = useSWRConfig();
-  const { data, error } = useSWR('/api/legdata', fetcher);
+  const { data, error } = useSWR(
+    '/api/legdata/?device=test&limit=6000',
+    fetcher
+  );
 
   useEffect(() => {
     if (data) {
-      setchartData(data.map((d) => ({ x: d.date, y: d.leg })));
+      setchartData(data);
     }
   }, [data]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      mutate('/api/legdata');
+      mutate('/api/legdata/?device=test&limit=6000');
     }, 500);
     return () => clearInterval(timer);
   });
@@ -38,9 +41,19 @@ const Test: NextPage = () => {
       </Head>
       <div className="app">
         <div className="row">
-          <div className="mixed-chart">
-            <RealtimeChart series={[{ name: 'test', data: chartData }]} />
-          </div>
+          {chartData && (
+            <div className="mixed-chart">
+              <RealtimeChart
+                series={[{ name: 'test', data: chartData.slice(300) }]}
+                range={3000}
+              />
+              <RealtimeChart
+                series={[{ name: 'test', data: chartData }]}
+                range={100000}
+                height={100}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>
