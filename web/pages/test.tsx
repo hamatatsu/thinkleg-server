@@ -44,7 +44,7 @@ const Test: NextPage = () => {
           {chartData && (
             <div className="mixed-chart">
               <RealtimeChart
-                series={[{ name: 'test', data: chartData.slice(300) }]}
+                series={[{ name: 'test', data: chartData.slice(0, 300) }]}
                 range={3000}
               />
               <RealtimeChart

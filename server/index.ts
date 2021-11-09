@@ -11,7 +11,7 @@ pool.connect((err, client, release) => {
     return console.error('Error acquiring client', err.stack);
   }
   client.query(
-    'DROP TABLE IF EXISTS test CASCADE; CREATE TABLE test (id serial, date timestamp, leg smallint, PRIMARY KEY (id));',
+    'DROP TABLE IF EXISTS test CASCADE; CREATE TABLE test (id serial, date timestamptz, leg smallint, PRIMARY KEY (id));',
     (err, result) => {
       release();
       if (err) console.error('Error executing query', err.stack);
@@ -40,7 +40,7 @@ mqttClient.on('message', (topic, message) => {
     const json = JSON.parse(message.toString());
     pool.connect((err, client, release) => {
       client.query(
-        `INSERT INTO test (date, leg) values ('${json['date']}', ${json['leg']})`,
+        `INSERT INTO test (date, leg) values ('${json['date']} JST', ${json['leg']})`,
         (err) => {
           release();
           if (err) console.error('Error executing query', err.stack);
