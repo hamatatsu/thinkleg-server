@@ -12,7 +12,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { device, limit } = req.query;
-  if (!limit) {
+  if (!limit || !device || Array.isArray(device) || Array.isArray(limit)) {
     res.send(400);
     return;
   }
@@ -22,11 +22,11 @@ export default async function handler(
     const result = await client.query(
       `SELECT * from ${device} ORDER BY date DESC LIMIT ${limit}`
     );
-    const array = result.rows.map((value) => [value.date, value.leg]);
+    const array = result.rows.map((value: Data) => [value.date, value.leg]);
     res.status(200).json(array);
   } catch (error) {
     console.error(error);
     res.send(400);
   }
-  client.end();
+  await client.end();
 }

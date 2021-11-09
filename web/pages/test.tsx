@@ -4,20 +4,17 @@ import { useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import RealtimeChart from '../components/realtimechart';
 
-const fetcher = (url) => fetch(url).then((r) => r.json());
+type Data = number[][];
 
-interface Data {
-  x: number;
-  y: number;
-}
+const fetcher = (url: RequestInfo): Promise<Data> =>
+  fetch(url).then((r) => r.json() as Data);
 
 const Test: NextPage = () => {
-  const [chartData, setchartData] = useState<Number[][2]>();
+  const device = 'test';
+  const apiUrl = `/api/legdata/?device=${device}&limit=6000`;
+  const [chartData, setchartData] = useState<Data>();
   const { mutate } = useSWRConfig();
-  const { data, error } = useSWR(
-    '/api/legdata/?device=test&limit=6000',
-    fetcher
-  );
+  const { data } = useSWR(apiUrl, fetcher);
 
   useEffect(() => {
     if (data) {
@@ -27,7 +24,7 @@ const Test: NextPage = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      mutate('/api/legdata/?device=test&limit=6000');
+      void mutate(apiUrl);
     }, 500);
     return () => clearInterval(timer);
   });
@@ -44,13 +41,8 @@ const Test: NextPage = () => {
           {chartData && (
             <div className="mixed-chart">
               <RealtimeChart
-                series={[{ name: 'test', data: chartData.slice(0, 300) }]}
-                range={3000}
-              />
-              <RealtimeChart
-                series={[{ name: 'test', data: chartData }]}
+                series={[{ name: device, data: chartData }]}
                 range={100000}
-                height={100}
               />
             </div>
           )}
