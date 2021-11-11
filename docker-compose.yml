@@ -41,7 +41,3 @@ services:
       POSTGRES_USER: ${PGUSER}
     ports:
       - 5432:5432
-
-networks:
-  thinkleg-network:
-    external: true
