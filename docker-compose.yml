@@ -4,6 +4,10 @@ services:
   web:
     build: web
     container_name: web
+    environment:
+      PGHOST:
+      PGUSER:
+      PGPASSWORD:
     volumes:
       - .:/workspace:cached
     ports:
@@ -12,6 +16,12 @@ services:
   server:
     build: server
     container_name: server
+    environment:
+      PGHOST:
+      PGUSER:
+      PGPASSWORD:
+      MQTTUSER:
+      MQTTPASSWORD:
     volumes:
       - .:/workspace:cached
     tty: true
@@ -27,8 +37,8 @@ services:
     image: postgres:alpine
     container_name: db
     environment:
-      POSTGRES_PASSWORD:
-      POSTGRES_USER:
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_USER: ${PGUSER}
     ports:
       - 5432:5432
 
