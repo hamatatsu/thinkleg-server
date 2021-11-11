@@ -14,8 +14,6 @@ services:
     container_name: server
     volumes:
       - .:/workspace:cached
-    ports:
-      - 3001:3001
     tty: true
   broker:
     image: eclipse-mosquitto
