@@ -3,7 +3,6 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import RealtimeChart from '../components/realtimechart';
-import { std } from '../lib/std';
 
 type Data = number[][];
 
@@ -12,21 +11,25 @@ const fetcher = (url: RequestInfo): Promise =>
 
 const device = 'test';
 const apiUrl = `/api/legdata/${device}`;
-const windowSize = 3000;
+const apiUrl2 = `/api/stds/${device}`;
 
 const Test: NextPage = () => {
   const { mutate } = useSWRConfig();
   const { data, error } = useSWR<Data, Error>(apiUrl, fetcher);
+  const { data: data2, error: error2 } = useSWR<Data, Error>(apiUrl2, fetcher);
 
   useEffect(() => {
     const timer = setInterval(() => {
       void mutate(apiUrl);
+      void mutate(apiUrl2);
     }, 1000);
     return () => clearInterval(timer);
   });
 
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;
+  if (error2) return <div>failed to load</div>;
+  if (!data2) return <div>loading...</div>;
   return (
     <>
       <Head>
@@ -38,16 +41,8 @@ const Test: NextPage = () => {
         <div className="row">
           <div className="mixed-chart">
             <RealtimeChart
-              series={[
-                {
-                  name: device,
-                  data: data[1].map((value, index) => {
-                    if (index < windowSize) return 0;
-                    return std(data[1].slice(index - windowSize, index));
-                  }),
-                },
-              ]}
-              categories={data[0]}
+              series={[{ name: device, data: data2[1] }]}
+              categories={data2[0]}
             />
             <RealtimeChart
               series={[{ name: device, data: data[1] }]}
