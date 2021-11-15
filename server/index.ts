@@ -10,14 +10,11 @@ pool.connect((err, client, release) => {
   if (err) {
     return console.error('Error acquiring client', err.stack);
   }
-  client.query(
-    'DROP TABLE IF EXISTS test CASCADE; CREATE TABLE test (id serial, date timestamptz, leg smallint, PRIMARY KEY (id));',
-    (err, result) => {
-      release();
-      if (err) console.error('Error executing query', err.stack);
-      console.log(result.rows);
-    }
-  );
+  client.query('SELECT current_database()', (err, result) => {
+    release();
+    if (err) console.error('Error executing query', err.stack);
+    console.log(result.rows);
+  });
 });
 
 const mqttClient = connect('mqtt://host.docker.internal', {
@@ -31,21 +28,28 @@ mqttClient.on('connect', () => {
       mqttClient.publish('presence', 'Hello mqtt');
     }
   });
-  mqttClient.subscribe('test');
+  mqttClient.subscribe('legdata/#');
 });
 mqttClient.on('error', (err) => console.error(err));
 mqttClient.on('message', (topic, message) => {
   if (topic === 'presence') console.log(message.toString());
-  if (topic === 'test') {
+  if (topic.startsWith('legdata')) {
+    const device = topic.split('/')[1];
     const json = JSON.parse(message.toString());
     pool.connect((err, client, release) => {
       client.query(
-        `INSERT INTO test (date, leg) values ('${json['date']} JST', ${json['leg']})`,
+        `CREATE TABLE IF NOT EXISTS ${device} (id SERIAL, date TIMESTAMPTZ, leg SMALLINT, PRIMARY KEY (id))`,
         (err) => {
-          release();
           if (err) console.error('Error executing query', err.stack);
         }
       );
+      client.query(
+        `INSERT INTO ${device} (date, leg) VALUES ('${json['date']} JST', ${json['leg']})`,
+        (err) => {
+          if (err) console.error('Error executing query', err.stack);
+        }
+      );
+      release();
     });
   }
 });

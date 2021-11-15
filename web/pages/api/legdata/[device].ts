@@ -11,18 +11,20 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { device, limit } = req.query;
-  if (!limit || !device || Array.isArray(device) || Array.isArray(limit)) {
+  const { device } = req.query;
+  if (!device || Array.isArray(device)) {
     res.send(400);
     return;
   }
   const client = new Client();
   await client.connect();
   try {
-    const result = await client.query(
-      `SELECT * from ${device} ORDER BY date DESC LIMIT ${limit}`
+    const result = await client.query(`SELECT * from ${device} ORDER BY date`);
+    const date = result.rows.map((value: Data) =>
+      new Date(value.date).getTime()
     );
-    const array = result.rows.map((value: Data) => [value.date, value.leg]);
+    const leg = result.rows.map((value: Data) => value.leg);
+    const array = [date, leg];
     res.status(200).json(array);
   } catch (error) {
     console.error(error);

@@ -1,34 +1,32 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import RealtimeChart from '../components/realtimechart';
+import { std } from '../lib/std';
 
 type Data = number[][];
 
-const fetcher = (url: RequestInfo): Promise<Data> =>
-  fetch(url).then((r) => r.json() as Data);
+const fetcher = (url: RequestInfo): Promise =>
+  fetch(url).then((res) => res.json() as Data);
+
+const device = 'test';
+const apiUrl = `/api/legdata/${device}`;
+const windowSize = 3000;
 
 const Test: NextPage = () => {
-  const device = 'test';
-  const apiUrl = `/api/legdata/?device=${device}&limit=6000`;
-  const [chartData, setchartData] = useState<Data>();
   const { mutate } = useSWRConfig();
-  const { data } = useSWR(apiUrl, fetcher);
-
-  useEffect(() => {
-    if (data) {
-      setchartData(data);
-    }
-  }, [data]);
+  const { data, error } = useSWR<Data, Error>(apiUrl, fetcher);
 
   useEffect(() => {
     const timer = setInterval(() => {
       void mutate(apiUrl);
-    }, 500);
+    }, 1000);
     return () => clearInterval(timer);
   });
 
+  if (error) return <div>failed to load</div>;
+  if (!data) return <div>loading...</div>;
   return (
     <>
       <Head>
@@ -38,14 +36,24 @@ const Test: NextPage = () => {
       </Head>
       <div className="app">
         <div className="row">
-          {chartData && (
-            <div className="mixed-chart">
-              <RealtimeChart
-                series={[{ name: device, data: chartData }]}
-                range={100000}
-              />
-            </div>
-          )}
+          <div className="mixed-chart">
+            <RealtimeChart
+              series={[
+                {
+                  name: device,
+                  data: data[1].map((value, index) => {
+                    if (index < windowSize) return 0;
+                    return std(data[1].slice(index - windowSize, index));
+                  }),
+                },
+              ]}
+              categories={data[0]}
+            />
+            <RealtimeChart
+              series={[{ name: device, data: data[1] }]}
+              categories={data[0]}
+            />
+          </div>
         </div>
       </div>
     </>

@@ -5,14 +5,17 @@ import dynamic from 'next/dynamic';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface Props {
-  series: number[][];
-  range: number;
+  series: number[];
+  categories: Date[];
 }
 
 const RealtimeChart: NextPage<Props> = (props) => {
-  const labelFormatter = (value: string, timestamp: number): string => {
-    const d = new Date(timestamp);
-    return d.toLocaleTimeString('ja-JP') + `.${d.getMilliseconds()}`;
+  const labelFormatter = (value: string): string => {
+    const d = new Date(value);
+    return (
+      d.toLocaleTimeString('ja-JP', { hour12: false }) +
+      `.${('000' + d.getMilliseconds().toString()).slice(-3)}`
+    );
   };
   const options = {
     chart: {
@@ -31,8 +34,9 @@ const RealtimeChart: NextPage<Props> = (props) => {
       enabled: false,
     },
     xaxis: {
-      type: 'datetime',
-      range: props.range,
+      type: 'numeric',
+      categories: props.categories,
+      tickAmount: 10,
       labels: {
         formatter: labelFormatter,
       },
@@ -48,7 +52,13 @@ const RealtimeChart: NextPage<Props> = (props) => {
   } as ApexChart.ApexOptions;
 
   return (
-    <Chart options={options} series={props.series} type="line" width={1000} />
+    <Chart
+      options={options}
+      series={props.series}
+      type="line"
+      width={1600}
+      height={900}
+    />
   );
 };
 
