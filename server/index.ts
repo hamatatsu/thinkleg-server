@@ -4,6 +4,11 @@ import { Pool } from 'pg';
 
 dotenv.config();
 
+type Data = {
+  date: string;
+  leg: string;
+};
+
 const pool = new Pool();
 
 pool.connect((err, client, release) => {
@@ -35,7 +40,7 @@ mqttClient.on('message', (topic, message) => {
   if (topic === 'presence') console.log(message.toString());
   if (topic.startsWith('legdata')) {
     const device = topic.split('/')[1];
-    const json = JSON.parse(message.toString());
+    const json = JSON.parse(message.toString()) as Data[];
     pool.connect((err, client, release) => {
       client.query(
         `CREATE TABLE IF NOT EXISTS ${device} (id SERIAL, date TIMESTAMPTZ, leg SMALLINT, PRIMARY KEY (id))`,
@@ -43,8 +48,11 @@ mqttClient.on('message', (topic, message) => {
           if (err) console.error('Error executing query', err.stack);
         }
       );
+      const values = json
+        .map((value) => `('${value['date']} JST', ${value['leg']})`)
+        .join(',');
       client.query(
-        `INSERT INTO ${device} (date, leg) VALUES ('${json['date']} JST', ${json['leg']})`,
+        `INSERT INTO ${device} (date, leg) VALUES ${values}`,
         (err) => {
           if (err) console.error('Error executing query', err.stack);
         }

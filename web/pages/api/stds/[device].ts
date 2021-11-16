@@ -28,8 +28,9 @@ export default async function handler(
     );
     const leg = result.rows.map((value: Data) => value.leg);
     const stds = leg.map((value, index): number => {
-      if (index < windowSize) return 0;
-      return std(leg.slice(index - windowSize, index));
+      if (index < 1) return 0;
+      if (index < windowSize) return std(leg.slice(0, index + 1));
+      return std(leg.slice(index - windowSize, index + 1));
     });
     const array = [date, stds];
     res.status(200).json(array);

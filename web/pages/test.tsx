@@ -9,7 +9,7 @@ type Data = number[][];
 const fetcher = (url: RequestInfo): Promise =>
   fetch(url).then((res) => res.json() as Data);
 
-const device = 'test';
+const device = 'egipi411';
 const apiUrl = `/api/legdata/${device}`;
 const apiUrl2 = `/api/stds/${device}`;
 
@@ -22,7 +22,7 @@ const Test: NextPage = () => {
     const timer = setInterval(() => {
       void mutate(apiUrl);
       void mutate(apiUrl2);
-    }, 1000);
+    }, 10000);
     return () => clearInterval(timer);
   });
 

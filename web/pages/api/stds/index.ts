@@ -6,8 +6,6 @@ type TableName = {
 };
 type Data = number[][];
 
-const windowSize = 3000;
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
