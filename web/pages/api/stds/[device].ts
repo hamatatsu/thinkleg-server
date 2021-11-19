@@ -35,8 +35,9 @@ export default async function handler(
     const array = [date, stds];
     res.status(200).json(array);
   } catch (error) {
-    console.error(error);
-    res.send(400);
+    res.status(500).send({ error: 'failed to fetch data' });
+    // res.send(400);
+    // console.error(error);
   }
   await client.end();
 }
