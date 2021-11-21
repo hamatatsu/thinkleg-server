@@ -16,7 +16,7 @@ export default async function handler(
 ) {
   const { device } = req.query;
   if (!device || Array.isArray(device)) {
-    res.send(400);
+    res.status(400).send({ message: 'no device' });
     return;
   }
   const client = new Client();
@@ -35,9 +35,7 @@ export default async function handler(
     const array = [date, stds];
     res.status(200).json(array);
   } catch (error) {
-    res.status(500).send({ error: 'failed to fetch data' });
-    // res.send(400);
-    // console.error(error);
+    res.status(400).send({ message: 'sql failed' });
   }
   await client.end();
 }

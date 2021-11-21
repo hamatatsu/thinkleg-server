@@ -1,8 +1,7 @@
 import ApexChart from 'apexcharts';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import { useEffect } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
+import useSWR from 'swr';
 
 interface Props {
   type: string;
@@ -11,20 +10,24 @@ interface Props {
 type Data = number[][];
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-const fetcher = (url: RequestInfo) => fetch(url).then((res) => res.json());
+const fetcher = async (url: RequestInfo) => {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const error = new Error('An error occurred while fetching the data.');
+    error.info = (await res.json()) as { message: string };
+    error.status = res.status;
+    throw error;
+  }
+
+  return res.json();
+};
 
 const RealtimeChart: NextPage<Props> = (props) => {
   const apiUrl = `/api/${props.type}/${props.device}`;
   const { data, error } = useSWR<Data, Error>(apiUrl, fetcher, {
     refreshInterval: 10000,
   });
-
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     void mutate(apiUrl);
-  //   }, 10000);
-  //   return () => clearInterval(timer);
-  // }, []);
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;
 
