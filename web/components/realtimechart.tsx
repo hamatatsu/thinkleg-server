@@ -8,13 +8,24 @@ interface Props {
   device: string;
 }
 type Data = number[][];
+class FetchError extends Error {
+  info: unknown;
+  status: number;
+  constructor(e?: string, info?: string, status?: number) {
+    super(e);
+    this.name = new.target.name;
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.info = info ? info : {};
+    this.status = status ? status : 500;
+  }
+}
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 const fetcher = async (url: RequestInfo) => {
   const res = await fetch(url);
 
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.');
+    const error = new FetchError('An error occurred while fetching the data.');
     error.info = (await res.json()) as { message: string };
     error.status = res.status;
     throw error;
