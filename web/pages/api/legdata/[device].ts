@@ -13,7 +13,7 @@ export default async function handler(
 ) {
   const { device } = req.query;
   if (!device || Array.isArray(device)) {
-    res.send(400);
+    res.status(400).send({ message: 'no device' });
     return;
   }
   const client = new Client();
@@ -27,8 +27,7 @@ export default async function handler(
     const array = [date, leg];
     res.status(200).json(array);
   } catch (error) {
-    console.error(error);
-    res.send(400);
+    res.status(400).send({ message: 'sql failed' });
   }
   await client.end();
 }
