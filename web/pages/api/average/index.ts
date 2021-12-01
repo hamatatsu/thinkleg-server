@@ -33,11 +33,10 @@ export default async function handler(
       const std = value[1];
       std.forEach((value, index) => (sum[index] = sum[index] + value));
     });
-    const dates = stds[max_index];
-    res.status(200).json([...dates, ...sum]);
+    const dates = stds[max_index][0];
+    res.status(200).json([dates, sum]);
   } catch (error) {
-    console.error(error);
-    res.send(400);
+    res.status(400).send({ message: 'sql failed' });
   }
   await client.end();
 }
