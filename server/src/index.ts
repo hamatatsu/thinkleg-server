@@ -12,13 +12,14 @@ type Data = {
 const pool = new Pool();
 
 pool.connect((err, client, release) => {
-  if (err) {
-    return console.error('Error acquiring client', err.stack);
-  }
-  client.query('SELECT current_database()', (err, result) => {
+  if (err) throw err;
+  client.query('SELECT current_database()', (err, res) => {
     release();
-    if (err) console.error('Error executing query', err.stack);
-    console.log(result.rows);
+    if (err) {
+      console.log(err.stack);
+    } else {
+      console.log(res.rows[0]);
+    }
   });
 });
 
